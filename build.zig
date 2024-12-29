@@ -11,14 +11,17 @@ pub fn build(b: *std.Build) void {
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall. Here we do not
     // set a preferred release mode, allowing the user to decide how to optimize.
     const optimize = b.standardOptimizeOption(.{});
-    // const mode = std.Build.ReleaseMode.fast; // Use Debug, ReleaseFast, or ReleaseSafe
 
-    // Define executable options
-    // const exe_main_options = std.Build.ExecutableOptions{
-    //     .target = target,
-    //     .name = "gameEngine",
-    //     .optimize = optimize,
-    // };
+    // Define the static library (gameEngine) for the main game logic
+    const lib = b.addStaticLibrary(.{
+        .name = "gameEngine",
+        .root_source_file = b.path("src/root.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+
+    // Install the static library
+    b.installArtifact(lib);
 
     // Define the gameEngine executable
     const exe_main = b.addExecutable(.{
@@ -27,8 +30,12 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
+
+    // Link system libraries
     exe_main.linkSystemLibrary("user32");
-    // exe_main.setOutputDir("zig-out/bin");
+
+    // Install the gameEngine executable
+    b.installArtifact(exe_main);
 
     // Define the windowTest executable
     const exe_windowhandle = b.addExecutable(.{
@@ -37,6 +44,18 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
+
+    // Link system libraries for windowTest
     exe_windowhandle.linkSystemLibrary("user32");
-    // exe_windowhandle.setOutputDir("zig-out/bin");
+
+    // Install the windowTest executable
+    b.installArtifact(exe_windowhandle);
+
+    // Step to run the gameEngine executable
+    const run_gameEngine = b.step("run_gameEngine", "Run the gameEngine executable");
+    run_gameEngine.dependOn(&exe_main.step);
+
+    // Step to run the windowTest executable
+    const run_windowTest = b.step("run_windowTest", "Run the windowTest executable");
+    run_windowTest.dependOn(&exe_windowhandle.step);
 }
