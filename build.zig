@@ -23,20 +23,6 @@ pub fn build(b: *std.Build) void {
 
     // Install the static library
     b.installArtifact(lib);
-
-    // Define the gameEngine executable
-    const exe_main = b.addExecutable(.{
-        .name = "gameEngine",
-        .root_source_file = b.path("src/main.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
-
-    // Link system libraries
-
-    // Install the gameEngine executable
-    b.installArtifact(exe_main);
-
     // Define the windowTest executable
     const exe_windowhandle = b.addExecutable(.{
         .name = "windowTest",
@@ -57,11 +43,38 @@ pub fn build(b: *std.Build) void {
     // Install the windowTest executable
     b.installArtifact(exe_windowhandle);
 
-    // Step to run the gameEngine executable
-    const run_gameEngine = b.step("run_gameEngine", "Run the gameEngine executable");
-    run_gameEngine.dependOn(&exe_main.step);
+    // Define the gameEngine executable
+    const exe_main = b.addExecutable(.{
+        .name = "gameEngine",
+        .root_source_file = b.path("src/main.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+
+    // Link system libraries
+
+    // Install the gameEngine executable
+    b.installArtifact(exe_main);
+
+    // This *creates* a Run step in the build graph, to be executed when another
+    // step is evaluated that depends on it. The next line below will establish
+    // such a dependency.
+    const win_run_cmd = b.addRunArtifact(exe_windowhandle);
+    const main_run_cmd = b.addRunArtifact(exe_main);
+
+    // By making the run step depend on the install step, it will be run from the
+    // installation directory rather than directly from within the cache directory.
+    // This is not necessary, however, if the application depends on other installed
+    // files, this ensures they will be present and in the expected location.
+    win_run_cmd.step.dependOn(b.getInstallStep());
+    main_run_cmd.step.dependOn(b.getInstallStep());
 
     // Step to run the windowTest executable
     const run_windowTest = b.step("run_windowTest", "Run the windowTest executable");
     run_windowTest.dependOn(&exe_windowhandle.step);
+
+    // Step to run the gameEngine executable
+    const run_gameEngine = b.step("run_gameEngine", "Run the gameEngine executable");
+    run_gameEngine.dependOn(&exe_main.step);
 }
+
