@@ -12,6 +12,7 @@ pub fn build(b: *std.Build) void {
     // set a preferred release mode, allowing the user to decide how to optimize.
     const optimize = b.standardOptimizeOption(.{});
 
+
     // Define the static library (gameEngine) for the main game logic
     const lib = b.addStaticLibrary(.{
         .name = "gameEngine",
@@ -32,7 +33,6 @@ pub fn build(b: *std.Build) void {
     });
 
     // Link system libraries
-    exe_main.linkSystemLibrary("user32");
 
     // Install the gameEngine executable
     b.installArtifact(exe_main);
@@ -45,8 +45,14 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+     // Specify package directly in the executable
+    const win32_module: *std.Build.Module = b.addModule("win32", .{
+        .root_source_file = b.path("libraries/zigwin32/win32.zig"),});
     // Link system libraries for windowTest
-    exe_windowhandle.linkSystemLibrary("user32");
+    exe_windowhandle.root_module.addImport("win32", win32_module);
+
+
+
 
     // Install the windowTest executable
     b.installArtifact(exe_windowhandle);
