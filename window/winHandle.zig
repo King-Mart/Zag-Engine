@@ -12,6 +12,86 @@ const win32 = struct {
 const L = win32.L;
 const HWND = win32.HWND;
 
+
+
+const window = struct {
+    var width = 640;
+    var height = 480;
+    var title = "Hello, world!";
+    var class_name = "HelloWindowClass";
+    var instance: win32.HINSTANCE = undefined;
+
+    pub fn init() !void {
+        instance = win32.GetModuleHandle(null);
+        try RegisterClass(@ptrCast(&window));
+        const hwnd = win32.CreateWindowEx(
+            0,
+            class_name,
+            title,
+            win32.WS_OVERLAPPEDWINDOW,
+            win32.CW_USEDEFAULT,
+            win32.CW_USEDEFAULT,
+            width,
+            height,
+            null,
+            null,
+            instance,
+            null,
+        );
+        if (hwnd == null) {
+        
+    }
+    }
+
+    fn createWindow() !void {
+        const wc = win32.WNDCLASS{
+            .style = win32.CS_CLASSDC,
+            .lpfnWndProc = WinProc,    
+            .cbClsExtra = 0,
+            .cbWndExtra = 0,
+            .hInstance = instance,
+            .hIcon = null,
+            .hCursor = null,
+            .hbrBackground = null,
+            .lpszMenuName = null,
+            .lpszClassName = class_name,
+        };
+        if (win32.RegisterClass(&wc) == 0) {
+            return win32.GetLastError();
+        }
+    }
+
+    fn RegisterClass() !void {
+        const wc = win32.WNDCLASS{
+            .style = win32.CS_CLASSDC,
+            .lpfnWndProc = WinProc,
+            .cbClsExtra = 0,
+            .cbWndExtra = 0,
+            .hInstance = instance,
+            .hIcon = null,
+            .hCursor = null,
+            .hbrBackground = null,
+            .lpszMenuName = null,
+            .lpszClassName = class_name,
+        };
+        if (win32.RegisterClass(&wc) == 0) {
+            return win32.GetLastError();
+        }
+    }
+
+    fn WinProc(hwnd: win32.HWND, msg: u32, wparam: usize, lparam: isize) callconv(WINAPI) isize {
+        switch (msg) {
+            win32.WM_DESTROY => {
+                win32.PostQuitMessage(0);
+                return 0;
+            },
+            else => {
+                return win32.DefWindowProc(hwnd, msg, wparam, lparam);
+            },
+        }
+    }
+
+};
 // Define the entry point with the correct signature for Windows apps
 
 pub export fn wWinMain(hInstance: win32.HINSTANCE, hPrevInstance: ?win32.HINSTANCE, lpCmdLine: ?[*]u16, nCmdShow: i32) i32 {
