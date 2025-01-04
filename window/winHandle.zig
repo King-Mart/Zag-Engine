@@ -116,7 +116,11 @@ fn WindowProc(hwnd: win32.HWND, msg: u32, wparam: usize, lparam: isize) callconv
         win32.WM_PAINT => {
             var ps: win32.PAINTSTRUCT = undefined;
             const hdc = win32.BeginPaint(hwnd, &ps);
-            _ = win32.FillRect(hdc, &ps.rcPaint, win32.CreateSolidBrush(0xFF0000));
+            const blueBrush = win32.CreateSolidBrush(0xFF0000);
+            defer {
+                _ = win32.DeleteObject(blueBrush);
+            }
+            _ = win32.FillRect(hdc, &ps.rcPaint, blueBrush);
             //why does a value of 52 shows hello         | Z i g W i n d o w C l a s s
             _ = win32.TextOutA(hdc, 20, 20, "Hello", 52);
             _ = win32.EndPaint(hwnd, &ps);
