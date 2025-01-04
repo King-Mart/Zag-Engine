@@ -117,15 +117,11 @@ fn WindowProc(hwnd: win32.HWND, msg: u32, wparam: usize, lparam: isize) callconv
             var ps: win32.PAINTSTRUCT = undefined;
             const hdc = win32.BeginPaint(hwnd, &ps);
             _ = win32.FillRect(hdc, &ps.rcPaint, win32.CreateSolidBrush(0xFF0000));
-            _ = win32.TextOutA(hdc, 20, 20, "Hello", 5);
+            //why does a value of 52 shows hello         | Z i g W i n d o w C l a s s
+            _ = win32.TextOutA(hdc, 20, 20, "Hello", 52);
             _ = win32.EndPaint(hwnd, &ps);
             return 0;
         },
         else => return win32.DefWindowProcW(hwnd, msg, wparam, lparam), //win32.DefWindowProcW(hwnd, msg, wparam, lparam),
     }
-}
-
-pub fn main() !void {
-    std.os.windows.link(wWinMain, "wWinMain");
-    wWinMain(0, null, null, 0);
 }
