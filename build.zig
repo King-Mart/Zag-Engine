@@ -23,26 +23,6 @@ pub fn build(b: *std.Build) void {
 
     // Install the static library
     b.installArtifact(lib);
-    // Define the windowTest executable
-    const exe_windowhandle = b.addExecutable(.{
-        .name = "windowTest",
-        .root_source_file = b.path("window/winHandle.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
-
-     // Specify package directly in the executable
-    const win32_module: *std.Build.Module = b.addModule("win32", .{
-        .root_source_file = b.path("libraries/zigwin32/win32.zig"),});
-    // Link system libraries for windowTest
-    exe_windowhandle.root_module.addImport("win32", win32_module);
-
-
-
-
-    // Install the windowTest executable
-    b.installArtifact(exe_windowhandle);
-
     // Define the gameEngine executable
     const exe_main = b.addExecutable(.{
         .name = "gameEngine",
@@ -50,12 +30,33 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
+    // Define the windowTest executable
+    const exe_windowhandle = b.addExecutable(.{
+        .name = "windowTest",
+        .root_source_file = b.path("modules/window/winHandle.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+
+    //add ziglib to the project, this allows the library to be used as a framework
+    const ziglib_module: *std.Build.Module = b.addModule("Ziglib", .{
+        .root_source_file = b.path("modules/Ziglib.zig")
+    });
+
+    exe_main.root_module.addImport("Ziglib", ziglib_module);
+    
+
+
+
+    
 
     // Link system libraries
 
     // Install the gameEngine executable
     b.installArtifact(exe_main);
 
+    // Install the windowTest executable
+    b.installArtifact(exe_windowhandle);
     // This *creates* a Run step in the build graph, to be executed when another
     // step is evaluated that depends on it. The next line below will establish
     // such a dependency.
