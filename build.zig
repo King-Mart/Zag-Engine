@@ -38,7 +38,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    //add ziglib to the project, this allows the library to be used as a framework
+    //add ziglib to the project, this allows the library to be reused as a framework
     const ziglib_module: *std.Build.Module = b.addModule("Ziglib", .{
         .root_source_file = b.path("modules/Ziglib.zig")
     });
