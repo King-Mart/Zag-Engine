@@ -44,7 +44,13 @@ pub fn build(b: *std.Build) void {
     });
 
     exe_main.root_module.addImport("Ziglib", ziglib_module);
-    
+    const UNICODE = b.option(bool, "UNICODE", "The value of the UNICODE constant") orelse true;
+    const options = b.addOptions();
+    options.addOption(bool, "UNICODE", UNICODE);
+
+    exe_main.root_module.addOptions("config", options);
+
+
 
 
 

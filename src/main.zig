@@ -1,8 +1,20 @@
 const std = @import("std");
 const Ziglib = @import("Ziglib");
+const config = @import("config");
+pub const UNICODE = config.UNICODE;
+
+//What is this?
+// pub fn panic(msg: []const u8, error_return_trace: ?*std.builtin.StackTrace) noreturn {
+//     _ = error_return_trace;
+//     @panic(msg);
+// }
+
 
 const test_window = Ziglib.window.window;
 pub fn main() !void {
+    if (config.UNICODE == false) {
+        @compileError("Non Unicode is not supported");
+    }
     // Prints to stderr (it's a shortcut based on `std.io.getStdErr()`)
     std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
     std.debug.print("This is a game engine in the makinssssg!\n", .{});
@@ -14,7 +26,8 @@ pub fn main() !void {
     var bw = std.io.bufferedWriter(stdout_file);
     //there are no tests yet
     // const stdout = bw.writer();
-
+    //TODO: add tests and handle errors properly
+    try test_window.init();
     // try stdout.print("Run `zig build test` to run the tests.\n", .{});
 
     try bw.flush(); // don't forget to flush!
