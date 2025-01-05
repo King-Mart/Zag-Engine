@@ -1,7 +1,7 @@
 # Zig-Zag engine
 #### This is a game engine mainly made to learn how game engines function and make my production of games faster.
 
-It was made in zig in order to force me to understand further the concepts I am using to make it.
+It was made in zig in order to force me to understand further the concepts I am using to make it.\n
 It will heavily be inspired by the Unreal Engine for the 3D part, Unity for 2D and Godot for ease of use and appeal
 
 # how to build it:
