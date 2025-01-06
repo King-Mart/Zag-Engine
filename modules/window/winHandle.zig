@@ -10,7 +10,7 @@ const win32 = struct {
     usingnamespace @import("win32.zig").graphics.gdi;
 };
 pub const HINSTANCE = win32.HINSTANCE;
-const L = win32.L;
+pub const L = win32.L;
 const HWND = win32.HWND;
 
 
@@ -18,7 +18,7 @@ const HWND = win32.HWND;
 pub const window = struct {
     var width: i16 = 640;
     var height: i16 = 480;
-    var title = L("Hello, world!");
+    pub var title: ?[*:0]const u16 = L("Hello, world!");
     var class_name: ?[*:0]const u16 = L("HelloWindowClass");
     var instance: ?win32.HINSTANCE = null;
     var wc: ?win32.WNDCLASSEXW = null;
