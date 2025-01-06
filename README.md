@@ -9,7 +9,8 @@ It will heavily be inspired by the Unreal Engine for the 3D part, Unity for 2D a
 1. Make sure you have Zig 0.13 installed
 2. Then clone this repository
 3. Open terminal in the root ofthe engine (the directory containing build.zig)
-4. Then run `zig build` in the terminal
+4. Then in the terminal run :
+`zig build`.
 Inside the zig-out/bin dirctory, you will find gameEngine.exe that you can run
 
 # TODO
