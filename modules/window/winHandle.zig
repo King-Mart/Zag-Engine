@@ -9,7 +9,8 @@ const win32 = struct {
     usingnamespace @import("win32.zig").ui.windows_and_messaging;
     usingnamespace @import("win32.zig").graphics.gdi;
 };
-const L = win32.L;
+pub const HINSTANCE = win32.HINSTANCE;
+pub const L = win32.L;
 const HWND = win32.HWND;
 
 
@@ -17,38 +18,44 @@ const HWND = win32.HWND;
 pub const window = struct {
     var width: i16 = 640;
     var height: i16 = 480;
-    var title = L("Hello, world!");
+    pub var title: ?[*:0]const u16 = L("Hello, world!");
     var class_name: ?[*:0]const u16 = L("HelloWindowClass");
-    var instance: win32.HINSTANCE = undefined;
-    
-    fn WinProc(hwnd: win32.HWND, msg: u32, wparam: usize, lparam: isize) callconv(WINAPI) isize {
+    var instance: ?win32.HINSTANCE = null;
+    var wc: ?win32.WNDCLASSEXW = null;
+    var hwnd: ?HWND = null;
+
+    fn WinProc(wpHWND: win32.HWND, msg: u32, wparam: usize, lparam: isize) callconv(WINAPI) isize {
         switch (msg) {
             win32.WM_DESTROY => {
                 win32.PostQuitMessage(0);
                 return 0;
             },
             else => {
-                return win32.DefWindowProc(hwnd, msg, wparam, lparam);
+                return win32.DefWindowProc(wpHWND, msg, wparam, lparam);
             },
         }
     }
-    const wc = win32.WNDCLASS{
+
+    pub fn createWindowClass(hInstance: win32.HINSTANCE) !void {
+        instance = hInstance;
+        wc = win32.WNDCLASSEXW{
             .style = win32.CS_CLASSDC,
-            .lpfnWndProc = WinProc,    
+            .lpfnWndProc = WinProc,
             .cbClsExtra = 0,
+            .cbSize = @sizeOf(win32.WNDCLASSEXW),
             .cbWndExtra = 0,
-            .hInstance = null,
+            .hInstance = hInstance,
             .hIcon = null,
+            .hIconSm = null,
             .hCursor = null,
             .hbrBackground = null,
             .lpszMenuName = null,
-            .lpszClassName = L("HelloWindowClass"),
+            .lpszClassName = class_name,
         };
-
+    }
     pub fn init() !void {
-        
         _ = win32.RegisterClass(&wc);
-        const hwnd = win32.CreateWindowEx(
+        hwnd = win32.CreateWindowEx(
             win32.WS_EX_OVERLAPPEDWINDOW,
             class_name,
             title,
@@ -62,22 +69,76 @@ pub const window = struct {
             instance,
             null,
         );
-        if (hwnd == null) {
-        
+        if (hwnd == null) {}
     }
-    }
+    pub fn registerClass() u32 {
 
-    fn createWindow() !void {
-        
-        if (win32.RegisterClass(&wc) == 0) {
-            return win32.GetLastError();
+        //TODO : proper error handling
+        if (wc) |window_class| {
+            if (win32.RegisterClassExW(&window_class) == 0) {
+                return @intFromEnum(win32.GetLastError());
+                
+            }
+            else {
+                return 0;
+            }
+        } else {
+            std.log.err("Window class has not been declared yet, please call createWindowClass(hInstance) first", .{});
+            return 1;
         }
     }
 
-
-    };
-
-
+    pub fn createWindow() !void {
+        //TODO : proper error handling
+        //TODO : Undo the nested if
+        if (instance) |hInstance| {
+            if (wc != null) {
+                hwnd = win32.CreateWindowExW(
+                    win32.WS_EX_OVERLAPPEDWINDOW,
+                    class_name,
+                    title,
+                    win32.WS_OVERLAPPEDWINDOW,
+                    win32.CW_USEDEFAULT,
+                    win32.CW_USEDEFAULT,
+                    width,
+                    height,
+                    null,
+                    null,
+                    hInstance,
+                    null,
+                );
+            } else {
+                std.log.err("Window class has not been declared yet, please call createWindowClass(hInstance) first", .{});
+            }
+        } else {
+            std.log.err("Window instance has not been declared yet, please call createWindowClass(hInstance) first", .{});
+        }
+    }
+    pub fn showWindow() !void {
+        //TODO : proper error handling
+        if (hwnd) |window_handle| {
+            _ = win32.ShowWindow(window_handle, win32.SW_SHOW);
+        } else {
+            std.log.err("Window handle (hwnd) has not been declared yet, please call createWindow() first", .{});
+        }
+    }
+    pub fn updateWindow() !void {
+        //TODO : proper error handling
+        if (hwnd) |window_handle| {
+            _ = win32.UpdateWindow(window_handle);
+        } else {
+            std.log.err("Window handle (hwnd) has not been declared yet, please call createWindow() first", .{});
+        }
+    }
+    pub fn messageLoop() !void {
+        //TODO : proper error handling
+        var msg: win32.MSG = undefined;
+        while (win32.GetMessage(&msg, null, 0, 0) != 0) {
+            _ = win32.TranslateMessage(&msg);
+            _ = win32.DispatchMessage(&msg);
+        }
+    }
+};
 
 // Define the entry point with the correct signature for Windows apps
 
@@ -109,6 +170,7 @@ pub export fn wWinMain(hInstance: win32.HINSTANCE, hPrevInstance: ?win32.HINSTAN
     } else {
         std.debug.print("No command line arguments\n", .{});
     }
+    
 
     // Define a window class
     var window_class: win32.WNDCLASSEXW = .{
