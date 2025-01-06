@@ -57,13 +57,16 @@ pub fn wWinMain(hInstance: Ziglib.window.HINSTANCE, hPrevInstance: ?Ziglib.windo
         std.debug.print("Error showing window: {s}\n", .{@errorName(err)});
         return 1;
     };
-    other_window.title = Ziglib.window.L("Other Window");
+    other_window.titleW = Ziglib.window.L("Other Window");
+
+    // other_window.title = "Other Window"; poses problem
 
     other_window.createWindowClass(hInstance) catch |err| {
         std.debug.print("Error creating window class: {s}\n", .{@errorName(err)});
         return 1;
     };
     _ = test_window.registerClass();
+    
 
     other_window.createWindow() catch |err| {
         std.debug.print("Error creating window: {s}\n", .{@errorName(err)});
@@ -92,32 +95,4 @@ pub fn wWinMain(hInstance: Ziglib.window.HINSTANCE, hPrevInstance: ?Ziglib.windo
     };
     return 0;
     
-}
-pub fn main() !void {
-    if (config.UNICODE == false) {
-        @compileError("Non Unicode is not supported");
-    }
-    // Prints to stderr (it's a shortcut based on `std.io.getStdErr()`)
-    std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
-    std.debug.print("This is a game engine in the makinssssg!\n", .{});
-
-    // stdout is for the actual output of your application, for example if you
-    // are implementing gzip, then only the compressed bytes should be sent to
-    // stdout, not any debugging messages.
-    const stdout_file = std.io.getStdOut().writer();
-    var bw = std.io.bufferedWriter(stdout_file);
-    //there are no tests yet
-    // const stdout = bw.writer();
-    //TODO: add tests and handle errors properly
-
-    // try stdout.print("Run `zig build test` to run the tests.\n", .{});
-
-    try bw.flush(); // don't forget to flush!
-}
-
-test "simple test" {
-    var list = std.ArrayList(i32).init(std.testing.allocator);
-    defer list.deinit(); // try commenting this out and see if zig detects the memory leak!
-    try list.append(42);
-    try std.testing.expectEqual(@as(i32, 42), list.pop());
 }

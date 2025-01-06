@@ -13,12 +13,11 @@ pub const HINSTANCE = win32.HINSTANCE;
 pub const L = win32.L;
 const HWND = win32.HWND;
 
-
-
 pub const window = struct {
     var width: i16 = 640;
     var height: i16 = 480;
-    pub var title: ?[*:0]const u16 = L("Hello, world!");
+    // pub var title: ?[*:0]const u8 = "Hello, world!"; poses problem
+    pub var titleW: ?[*:0]const u16 = L("Hello, world!");
     var class_name: ?[*:0]const u16 = L("HelloWindowClass");
     var instance: ?win32.HINSTANCE = null;
     var wc: ?win32.WNDCLASSEXW = null;
@@ -58,7 +57,7 @@ pub const window = struct {
         hwnd = win32.CreateWindowEx(
             win32.WS_EX_OVERLAPPEDWINDOW,
             class_name,
-            title,
+            titleW,
             win32.WS_OVERLAPPEDWINDOW,
             win32.CW_USEDEFAULT,
             win32.CW_USEDEFAULT,
@@ -77,9 +76,7 @@ pub const window = struct {
         if (wc) |window_class| {
             if (win32.RegisterClassExW(&window_class) == 0) {
                 return @intFromEnum(win32.GetLastError());
-                
-            }
-            else {
+            } else {
                 return 0;
             }
         } else {
@@ -96,7 +93,7 @@ pub const window = struct {
                 hwnd = win32.CreateWindowExW(
                     win32.WS_EX_OVERLAPPEDWINDOW,
                     class_name,
-                    title,
+                    titleW,
                     win32.WS_OVERLAPPEDWINDOW,
                     win32.CW_USEDEFAULT,
                     win32.CW_USEDEFAULT,
@@ -133,9 +130,17 @@ pub const window = struct {
     pub fn messageLoop() !void {
         //TODO : proper error handling
         var msg: win32.MSG = undefined;
+        var howManyTimesCalled: i32 = 0;
+        var receivedMessage: i32 = 0;
+        var dispatchedMessage: isize = 0;
         while (win32.GetMessage(&msg, null, 0, 0) != 0) {
-            _ = win32.TranslateMessage(&msg);
-            _ = win32.DispatchMessage(&msg);
+            receivedMessage = win32.TranslateMessage(&msg);
+            dispatchedMessage = win32.DispatchMessage(&msg);
+            howManyTimesCalled += 1;
+            // std.debug.print("For the window : {s}", .{title}); poses problem
+            std.debug.print("Message loop for the  class has been called {d} times\n", .{howManyTimesCalled});
+            std.debug.print("Received message: {d}\n", .{receivedMessage});
+            std.debug.print("Dispatched message: {d}\n", .{dispatchedMessage});
         }
     }
 };
@@ -170,9 +175,8 @@ pub export fn wWinMain(hInstance: win32.HINSTANCE, hPrevInstance: ?win32.HINSTAN
     } else {
         std.debug.print("No command line arguments\n", .{});
     }
-    
 
-    // Define a window class
+    // Define a window class This s required by the Windows API, they will use this window class to register the window
     var window_class: win32.WNDCLASSEXW = .{
         .style = win32.CS_HREDRAW,
         .lpfnWndProc = WindowProc,
@@ -188,15 +192,15 @@ pub export fn wWinMain(hInstance: win32.HINSTANCE, hPrevInstance: ?win32.HINSTAN
         .lpszClassName = L("ZigWindowClass"),
     };
 
-    // Register the window class
+    // Register the window class, This is required by the Windows API since we are tellign them this class is the class we're using a a window class
     if (win32.RegisterClassExW(&window_class) == 0) {
         //TODO Convert error code into i32
         const error_code = win32.GetLastError();
-        std.log.err("Failed to register window class: {}", .{error_code});
+        std.log.err("Failed to register window class: {d}", .{error_code});
         return 1;
     }
 
-    // Create the window
+    // Create the window this function creates the window and returns a handle to the window that we can use to operate on the window.
     const hwnd = win32.CreateWindowExW(
         win32.WS_EX_OVERLAPPEDWINDOW,
         window_class.lpszClassName,
@@ -214,10 +218,11 @@ pub export fn wWinMain(hInstance: win32.HINSTANCE, hPrevInstance: ?win32.HINSTAN
 
     std.debug.print("hwnd: {any}\n", .{hwnd});
 
+    // Check if the window creation was successful by verifying that hwnd is not null
     if (hwnd == null) {
         //TODO Convert error code into i32
         const error_code = win32.GetLastError();
-        std.log.err("Failed to register window class: {}", .{error_code});
+        std.log.err("Failed to register window class: {any}", .{error_code});
         return 2;
     }
 
