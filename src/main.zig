@@ -20,7 +20,8 @@ pub fn wWinMain(hInstance: Ziglib.window.HINSTANCE, hPrevInstance: ?Ziglib.windo
     _ = nCmdShow;
     _ = hPrevInstance;
     const test_window = Ziglib.window.window;
-    const other_window = Ziglib.window.window;
+    // Having 2 windows doesn't work properly
+    // const other_window = Ziglib.window.window;
     // If lpCmdLine is not null, handle it properly
     if (lpCmdLine) |cmdLine| {
         var cmdLineLen: usize = 0;
@@ -57,25 +58,11 @@ pub fn wWinMain(hInstance: Ziglib.window.HINSTANCE, hPrevInstance: ?Ziglib.windo
         std.debug.print("Error showing window: {s}\n", .{@errorName(err)});
         return 1;
     };
-    other_window.titleW = Ziglib.window.L("Other Window");
 
-    // other_window.title = "Other Window"; poses problem
 
-    other_window.createWindowClass(hInstance) catch |err| {
-        std.debug.print("Error creating window class: {s}\n", .{@errorName(err)});
-        return 1;
-    };
     _ = test_window.registerClass();
     
 
-    other_window.createWindow() catch |err| {
-        std.debug.print("Error creating window: {s}\n", .{@errorName(err)});
-        return 1;
-    };
-    other_window.showWindow() catch |err| {
-        std.debug.print("Error showing window: {s}\n", .{@errorName(err)});
-        return 1;
-    };
 
     test_window.updateWindow() catch |err| {
         std.debug.print("Error updating window: {s}\n", .{@errorName(err)});
@@ -85,14 +72,28 @@ pub fn wWinMain(hInstance: Ziglib.window.HINSTANCE, hPrevInstance: ?Ziglib.windo
         std.debug.print("Error in message loop: {s}\n", .{@errorName(err)});
         return 1;
     };
-    other_window.updateWindow() catch |err| {
-        std.debug.print("Error updating window: {s}\n", .{@errorName(err)});
-        return 1;
-    };
-    other_window.messageLoop() catch |err| {
-        std.debug.print("Error in message loop: {s}\n", .{@errorName(err)});
-        return 1;
-    };
+    // other_window.titleW = Ziglib.window.L("Other Window");
+    // other_window.title = "Other Window"; poses problem
+    // other_window.createWindowClass(hInstance) catch |err| {
+    //     std.debug.print("Error creating window class: {s}\n", .{@errorName(err)});
+    //     return 1;
+    // };
+    // other_window.createWindow() catch |err| {
+    //     std.debug.print("Error creating window: {s}\n", .{@errorName(err)});
+    //     return 1;
+    // };
+    // other_window.showWindow() catch |err| {
+    //     std.debug.print("Error showing window: {s}\n", .{@errorName(err)});
+    //     return 1;
+    // };
+    // other_window.updateWindow() catch |err| {
+    //     std.debug.print("Error updating window: {s}\n", .{@errorName(err)});
+    //     return 1;
+    // };
+    // other_window.messageLoop() catch |err| {
+    //     std.debug.print("Error in message loop: {s}\n", .{@errorName(err)});
+    //     return 1;
+    // };
     return 0;
     
 }

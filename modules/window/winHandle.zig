@@ -24,11 +24,19 @@ pub const window = struct {
     var hwnd: ?HWND = null;
 
     fn WinProc(wpHWND: win32.HWND, msg: u32, wparam: usize, lparam: isize) callconv(WINAPI) isize {
+        std.debug.print("WindowProc called, msg: {d}, wparam: {d}, lparam: {d}\n", .{ msg, wparam, lparam });
         switch (msg) {
             win32.WM_DESTROY => {
                 win32.PostQuitMessage(0);
                 return 0;
             },
+            win32.WM_PAINT => {
+            var ps: win32.PAINTSTRUCT = undefined;
+            const hdc = win32.BeginPaint(hwnd, &ps);
+            _ = win32.FillRect(hdc, &ps.rcPaint, @ptrFromInt(@intFromEnum(win32.COLOR_WINDOW) + 1));
+            _ = win32.EndPaint(hwnd, &ps);
+            return 0;
+        },
             else => {
                 return win32.DefWindowProc(wpHWND, msg, wparam, lparam);
             },
