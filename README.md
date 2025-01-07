@@ -13,6 +13,11 @@ It will heavily be inspired by the Unreal Engine for the 3D part, Unity for 2D a
 `zig build`.
 Inside the zig-out/bin dirctory, you will find gameEngine.exe that you can run
 
+# Build options
+#### To take advantage of Zig's powerful build option, I aimed to add optional parameters.
+As of now, the only parameter is UNICODE and it is  boolean (true or false).\
+To change it, when running the build command add -DUNICODE=[true or false], like this :\
+`zig build -DUNICODE=true`\
+It is true by default and a false value will return a compile error, because I did not add support for non Unicode characters for now
 # TODO
 * Add releases so it is easier to install
-* Make a website for documentation
