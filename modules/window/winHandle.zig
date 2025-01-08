@@ -256,9 +256,13 @@ fn WindowProc(hwnd: win32.HWND, msg: u32, wparam: usize, lparam: isize) callconv
             return 0;
         },
         win32.WM_PAINT => {
+            //We got the message from windows to repaint the window
             var ps: win32.PAINTSTRUCT = undefined;
             const hdc = win32.BeginPaint(hwnd, &ps);
-            const blueBrush = win32.CreateSolidBrush(0xFF0000);
+            //In win32, the colors are set as 0xBBGGRR instead of the standard 0xRRGGBB.
+            const colorRed = 0x0000FF;
+            const blueBrush = win32.CreateSolidBrush(colorRed);
+            //To avoid memory leaks we are deleting the brush when we are done painting
             defer {
                 _ = win32.DeleteObject(blueBrush);
             }
