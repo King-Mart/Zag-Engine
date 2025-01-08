@@ -3,16 +3,11 @@ const Ziglib = @import("Ziglib");
 const config = @import("config");
 pub const UNICODE = config.UNICODE;
 
-
 //What is this?
 // pub fn panic(msg: []const u8, error_return_trace: ?*std.builtin.StackTrace) noreturn {
 //     _ = error_return_trace;
 //     @panic(msg);
 // }
-
-
-
-
 
 pub fn wWinMain(hInstance: Ziglib.window.HINSTANCE, hPrevInstance: ?Ziglib.window.HINSTANCE, lpCmdLine: ?[*]u16, nCmdShow: i32) i32 {
     std.debug.print("wWinMain called\n", .{});
@@ -59,10 +54,7 @@ pub fn wWinMain(hInstance: Ziglib.window.HINSTANCE, hPrevInstance: ?Ziglib.windo
         return 1;
     };
 
-
     _ = test_window.registerClass();
-    
-
 
     test_window.updateWindow() catch |err| {
         std.debug.print("Error updating window: {s}\n", .{@errorName(err)});
@@ -95,5 +87,9 @@ pub fn wWinMain(hInstance: Ziglib.window.HINSTANCE, hPrevInstance: ?Ziglib.windo
     //     return 1;
     // };
     return 0;
-    
 }
+// UNIT TESTS HERE
+test "window???" {
+    std.testing.refAllDecls(@This());
+}
+

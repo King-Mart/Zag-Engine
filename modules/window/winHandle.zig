@@ -14,8 +14,8 @@ pub const L = win32.L;
 const HWND = win32.HWND;
 
 pub const window = struct {
-    var width: i16 = 640;
-    var height: i16 = 480;
+    pub var width: i16 = 640;
+    pub var height: i16 = 480;
     // pub var title: ?[*:0]const u8 = "Hello, world!"; poses problem
     pub var titleW: ?[*:0]const u16 = L("Hello, world!");
     var class_name: ?[*:0]const u16 = L("HelloWindowClass");
@@ -31,12 +31,12 @@ pub const window = struct {
                 return 0;
             },
             win32.WM_PAINT => {
-            var ps: win32.PAINTSTRUCT = undefined;
-            const hdc = win32.BeginPaint(hwnd, &ps);
-            _ = win32.FillRect(hdc, &ps.rcPaint, @ptrFromInt(@intFromEnum(win32.COLOR_WINDOW) + 1));
-            _ = win32.EndPaint(hwnd, &ps);
-            return 0;
-        },
+                var ps: win32.PAINTSTRUCT = undefined;
+                const hdc = win32.BeginPaint(hwnd, &ps);
+                _ = win32.FillRect(hdc, &ps.rcPaint, @ptrFromInt(@intFromEnum(win32.COLOR_WINDOW) + 1));
+                _ = win32.EndPaint(hwnd, &ps);
+                return 0;
+            },
             else => {
                 return win32.DefWindowProc(wpHWND, msg, wparam, lparam);
             },
@@ -263,9 +263,10 @@ fn WindowProc(hwnd: win32.HWND, msg: u32, wparam: usize, lparam: isize) callconv
                 _ = win32.DeleteObject(blueBrush);
             }
             _ = win32.FillRect(hdc, &ps.rcPaint, blueBrush);
-            //why does a value of 52 shows hello         | Z i g W i n d o w C l a s s
-            _ = win32.TextOutA(hdc, 20, 20, "Hello", 52);
+            //Make sure that the value for c is the lenght of the string, if not, it will look further than necessary in memory, causing unwanted behavior
+            _ = win32.TextOutA(hdc, 20, 20, "Hello", 5);
             _ = win32.EndPaint(hwnd, &ps);
+            
             return 0;
         },
         else => return win32.DefWindowProcW(hwnd, msg, wparam, lparam), //win32.DefWindowProcW(hwnd, msg, wparam, lparam),
