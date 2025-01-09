@@ -33,11 +33,11 @@ pub fn build(b: *std.Build) void {
     // Define the windowTest executable
     const exe_windowhandle = b.addExecutable(.{
         .name = "windowTest",
-        .root_source_file = b.path("modules/window/winHandle.zig"),
+        .root_source_file = b.path("modules/graphics/window.zig"),
         .target = target,
         .optimize = optimize,
     });
-
+    
     //add ziglib to the project, this allows the library to be reused as a framework
     const ziglib_module: *std.Build.Module = b.addModule("Ziglib", .{
         .root_source_file = b.path("modules/Ziglib.zig")

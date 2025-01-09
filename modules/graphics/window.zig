@@ -9,6 +9,7 @@ const win32 = struct {
     usingnamespace @import("win32.zig").ui.windows_and_messaging;
     usingnamespace @import("win32.zig").graphics.gdi;
 };
+const color = @import("../graphics/color.zig");
 pub const HINSTANCE = win32.HINSTANCE;
 pub const L = win32.L;
 const HWND = win32.HWND;
@@ -260,8 +261,8 @@ fn WindowProc(hwnd: win32.HWND, msg: u32, wparam: usize, lparam: isize) callconv
             var ps: win32.PAINTSTRUCT = undefined;
             const hdc = win32.BeginPaint(hwnd, &ps);
             //In win32, the colors are set as 0xBBGGRR instead of the standard 0xRRGGBB.
-            const colorRed = 0x0000FF;
-            const blueBrush = win32.CreateSolidBrush(colorRed);
+            const colorGreen = color.RGBtoWIN32(color.RGB255(147, 204, 18));
+            const blueBrush = win32.CreateSolidBrush(colorGreen);
             //To avoid memory leaks we are deleting the brush when we are done painting
             defer {
                 _ = win32.DeleteObject(blueBrush);

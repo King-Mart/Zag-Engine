@@ -6,7 +6,7 @@ pub const input = @import("inputHandler/input.zig");
 pub const math = @import("math/math.zig");
 pub const network = @import("networking/network.zig");
 //pub const physics = @import("physics/physics.zig"); //TODO add a physics engine
-pub const window = @import("window/winHandle.zig");
+pub const window = @import("graphics/window.zig");
 
 test {
     @import("std").testing.refAllDecls(@This());
