@@ -39,6 +39,7 @@ pub fn wWinMain(hInstance: Ziglib.window.HINSTANCE, hPrevInstance: ?Ziglib.windo
     } else {
         std.debug.print("No command line arguments\n", .{});
     }
+    test_window.background_color = Ziglib.graphics.color.RGB(0.12, 0.234, 0.9281323);
     test_window.createWindowClass(hInstance) catch |err| {
         std.debug.print("Error creating window class: {s}\n", .{@errorName(err)});
         return 1;

@@ -23,6 +23,7 @@ pub const window = struct {
     var instance: ?win32.HINSTANCE = null;
     var wc: ?win32.WNDCLASSEXW = null;
     var hwnd: ?HWND = null;
+    pub var background_color: color.rgb = color.RGB(1.0, 1.0, 1.0);
 
     fn WinProc(wpHWND: win32.HWND, msg: u32, wparam: usize, lparam: isize) callconv(WINAPI) isize {
         std.debug.print("WindowProc called, msg: {d}, wparam: {d}, lparam: {d}\n", .{ msg, wparam, lparam });
@@ -34,7 +35,7 @@ pub const window = struct {
             win32.WM_PAINT => {
                 var ps: win32.PAINTSTRUCT = undefined;
                 const hdc = win32.BeginPaint(hwnd, &ps);
-                _ = win32.FillRect(hdc, &ps.rcPaint, @ptrFromInt(@intFromEnum(win32.COLOR_WINDOW) + 1));
+                _ = win32.FillRect(hdc, &ps.rcPaint, win32.CreateSolidBrush(color.RGBtoWIN32(background_color)));
                 _ = win32.EndPaint(hwnd, &ps);
                 return 0;
             },
