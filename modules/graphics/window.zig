@@ -9,7 +9,8 @@ const win32 = struct {
     usingnamespace @import("win32.zig").ui.windows_and_messaging;
     usingnamespace @import("win32.zig").graphics.gdi;
 };
-const color = @import("../graphics/color.zig");
+// Use the local color file for handling colors
+const color = @import("color.zig");
 pub const HINSTANCE = win32.HINSTANCE;
 pub const L = win32.L;
 const HWND = win32.HWND;

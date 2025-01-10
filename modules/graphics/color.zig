@@ -1,11 +1,22 @@
-// const math = @import("../math/math.zig");
+const math = @import("../math/math.zig");
 const std = @import("std");
 
+//TODO memory deallocation??
+//TODO more color types
+//TODO error handling
 
 pub const rgb = struct {
     r: f32,
     g: f32,
     b: f32,
+
+     pub fn toHex(self: rgb) u32 {
+         return @intFromFloat(self.r * 16711680 + self.g * 65280 + self.b * 255);
+     }
+
+     pub fn toWIN32Hex(self: rgb) u32 {
+         return @intFromFloat(self.b * 16711680 + self.g * 65280 + self.r * 255);
+     }
 };
 
 pub const hsv = struct {
@@ -13,6 +24,7 @@ pub const hsv = struct {
     s: f32,
     v: f32,
 };
+
 
 pub fn RGB(r: f32, g: f32, b: f32) rgb {
     // if (r>1.0 or g>1.0 or b>1.0) {
