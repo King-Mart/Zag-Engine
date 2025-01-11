@@ -1,21 +1,31 @@
 const math = @import("../math/math.zig");
 const std = @import("std");
 
+//As of 2025 Jan 10, rgb was switched from f32 to u8
+
 //TODO memory deallocation??
 //TODO more color types
 //TODO error handling
+//TODO color conversion
+
+// const Color = struct {
+//     pub fn toCOLOREF() u32 {
+//         return 0xFFFFFF;
+//     }
+// };
 
 pub const rgb = struct {
-    r: f32,
-    g: f32,
-    b: f32,
+    r: u8,
+    g: u8,
+    b: u8,
 
      pub fn toHex(self: rgb) u32 {
-         return @intFromFloat(self.r * 16711680 + self.g * 65280 + self.b * 255);
+        return self.r << 16 | self.g << 8 | self.b;
      }
 
-     pub fn toWIN32Hex(self: rgb) u32 {
-         return @intFromFloat(self.b * 16711680 + self.g * 65280 + self.r * 255);
+//TODO benchmark possibilites
+     pub fn toCOLOREF(self: rgb) u32 {
+        return @as(u32, self.b) << 16 | @as(u16,self.g) << 8 | self.r;
      }
 };
 
@@ -26,29 +36,50 @@ pub const hsv = struct {
 };
 
 
-pub fn RGB(r: f32, g: f32, b: f32) rgb {
+pub fn RGB(r: u8, g: u8, b: u8) rgb {
     // if (r>1.0 or g>1.0 or b>1.0) {
     //     return error.InvalidColor;
     // }
-    return rgb{ .r = r, .g = g, .b = b };
-}
-pub fn RGB255(r: u8, g: u8, b: u8) rgb{
-
-    //TODO perhaps the conversion can be optimized
+    // const color : ColorType = ColorType{.rgb = rgb{.r = r, .g = g, .b = b}};
+    // return color;
     return rgb{
-        .r = @as(f32,@floatFromInt(r)) / 255.0,
-        .g = @as(f32,@floatFromInt(g)) / 255.0,
-        .b = @as(f32,@floatFromInt(b)) / 255.0,
+        .r = r,
+        .g = g,
+        .b = b
         };
-}
+    }
 
-pub fn RGBtoWIN32(RGBcolor : rgb) u32 {
+pub const ColorType = union(enum) {
+    rgb: rgb,
+    hsv: hsv,
+};
 
-    // std.debug.print("RGBtoWIN32: {d} {d} {d}\n", .{RGBcolor.r, RGBcolor.g, RGBcolor.b});
-    // std.debug.print("Result hex: {x}\n", .{@as(u32,@intFromFloat(RGBcolor.r * 16711680 + RGBcolor.g * 65280 + RGBcolor.b * 255))});
 
-    return @intFromFloat(RGBcolor.b * 16711680 + RGBcolor.g * 65280 + RGBcolor.r * 255);
-}
+//Failed attempt to streamline color conversion
+// pub fn toCOLOREF(color : struct {}) u32 {
+
+//     // comptime {
+//     //     if (!@hasDecl(ColorType, "toCOLOREF")) {
+//     //         @compileError("color type does not have toCOLOREF function");
+//     //     }
+//     // }
+
+//     comptime {
+//         if (@hasDecl(ColorType, "rgb")) {
+//             if (color == .rgb) {
+//                 return color.rgb.toCOLOREF();
+//             }
+//         }
+//         if (@hasDecl(ColorType, "hsv")) {
+//             if (color == .hsv) {
+//                 return color.hsv.toCOLOREF();
+//             }
+//         }
+//     }
+
+//     return 0xFFFFFF;
+
+// }
 
 pub fn RGBtoHSV(RGBcolor : rgb) hsv {
     return RGBcolor;

@@ -36,7 +36,7 @@ pub const window = struct {
             win32.WM_PAINT => {
                 var ps: win32.PAINTSTRUCT = undefined;
                 const hdc = win32.BeginPaint(hwnd, &ps);
-                _ = win32.FillRect(hdc, &ps.rcPaint, win32.CreateSolidBrush(color.RGBtoWIN32(background_color)));
+                _ = win32.FillRect(hdc, &ps.rcPaint, win32.CreateSolidBrush(background_color.toCOLOREF()));
                 _ = win32.EndPaint(hwnd, &ps);
                 return 0;
             },
@@ -263,7 +263,7 @@ fn WindowProc(hwnd: win32.HWND, msg: u32, wparam: usize, lparam: isize) callconv
             var ps: win32.PAINTSTRUCT = undefined;
             const hdc = win32.BeginPaint(hwnd, &ps);
             //In win32, the colors are set as 0xBBGGRR instead of the standard 0xRRGGBB.
-            const colorGreen = color.RGBtoWIN32(color.RGB255(147, 204, 18));
+            const colorGreen = color.RGB(147, 204, 18).toCOLOREF();
             const blueBrush = win32.CreateSolidBrush(colorGreen);
             //To avoid memory leaks we are deleting the brush when we are done painting
             defer {
