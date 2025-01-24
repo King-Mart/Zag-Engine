@@ -46,8 +46,9 @@ pub const window = struct {
         }
     }
 
-    pub fn createWindowClass(hInstance: win32.HINSTANCE) !void {
+    pub fn newWindow(hInstance : win32.HINSTANCE) !void {
         instance = hInstance;
+        //Create the window class to describe what kind of window to create to the Windows operating system
         wc = win32.WNDCLASSEXW{
             .style = win32.CS_CLASSDC,
             .lpfnWndProc = WinProc,
@@ -62,10 +63,18 @@ pub const window = struct {
             .lpszMenuName = null,
             .lpszClassName = class_name,
         };
-    }
-    pub fn init() !void {
-        _ = win32.RegisterClass(&wc);
-        hwnd = win32.CreateWindowEx(
+        
+        //Tell window this is the class to use for our next window
+        //And return error if encountered
+        if (wc) |window_class| {
+            if (win32.RegisterClassExW(&window_class) == 0) {
+                return error.RegisterClassFailed;
+            }
+        }
+
+
+        //Receive the window handle
+        hwnd = win32.CreateWindowExW(
             win32.WS_EX_OVERLAPPEDWINDOW,
             class_name,
             titleW,
@@ -76,206 +85,18 @@ pub const window = struct {
             height,
             null,
             null,
-            instance,
+            hInstance,
             null,
         );
-        if (hwnd == null) {}
-    }
-    pub fn registerClass() u32 {
 
-        //TODO : proper error handling
-        if (wc) |window_class| {
-            if (win32.RegisterClassExW(&window_class) == 0) {
-                return @intFromEnum(win32.GetLastError());
-            } else {
-                return 0;
-            }
-        } else {
-            std.log.err("Window class has not been declared yet, please call createWindowClass(hInstance) first", .{});
-            return 1;
-        }
-    }
+        _ = win32.ShowWindow(hwnd, win32.SW_SHOW);
+        _ = win32.UpdateWindow(hwnd);
 
-    pub fn createWindow() !void {
-        //TODO : proper error handling
-        //TODO : Undo the nested if
-        if (instance) |hInstance| {
-            if (wc != null) {
-                hwnd = win32.CreateWindowExW(
-                    win32.WS_EX_OVERLAPPEDWINDOW,
-                    class_name,
-                    titleW,
-                    win32.WS_OVERLAPPEDWINDOW,
-                    win32.CW_USEDEFAULT,
-                    win32.CW_USEDEFAULT,
-                    width,
-                    height,
-                    null,
-                    null,
-                    hInstance,
-                    null,
-                );
-            } else {
-                std.log.err("Window class has not been declared yet, please call createWindowClass(hInstance) first", .{});
-            }
-        } else {
-            std.log.err("Window instance has not been declared yet, please call createWindowClass(hInstance) first", .{});
-        }
-    }
-    pub fn showWindow() !void {
-        //TODO : proper error handling
-        if (hwnd) |window_handle| {
-            _ = win32.ShowWindow(window_handle, win32.SW_SHOW);
-        } else {
-            std.log.err("Window handle (hwnd) has not been declared yet, please call createWindow() first", .{});
-        }
-    }
-    pub fn updateWindow() !void {
-        //TODO : proper error handling
-        if (hwnd) |window_handle| {
-            _ = win32.UpdateWindow(window_handle);
-        } else {
-            std.log.err("Window handle (hwnd) has not been declared yet, please call createWindow() first", .{});
-        }
-    }
-    pub fn messageLoop() !void {
-        //TODO : proper error handling
+        //Empty the message loop to handle them later
         var msg: win32.MSG = undefined;
-        var howManyTimesCalled: i32 = 0;
-        var receivedMessage: i32 = 0;
-        var dispatchedMessage: isize = 0;
         while (win32.GetMessage(&msg, null, 0, 0) != 0) {
-            receivedMessage = win32.TranslateMessage(&msg);
-            dispatchedMessage = win32.DispatchMessage(&msg);
-            howManyTimesCalled += 1;
-            // std.debug.print("For the window : {s}", .{title}); poses problem
-            std.debug.print("Message loop for the  class has been called {d} times\n", .{howManyTimesCalled});
-            std.debug.print("Received message: {d}\n", .{receivedMessage});
-            std.debug.print("Dispatched message: {d}\n", .{dispatchedMessage});
+            _ = win32.TranslateMessage(&msg);
+            _ = win32.DispatchMessage(&msg);
         }
     }
 };
-
-// Define the entry point with the correct signature for Windows apps
-
-pub export fn wWinMain(hInstance: win32.HINSTANCE, hPrevInstance: ?win32.HINSTANCE, lpCmdLine: ?[*]u16, nCmdShow: i32) i32 {
-    std.debug.print("wWinMain called\n", .{});
-    // Mark unused parameters as unused
-    _ = nCmdShow;
-    _ = hPrevInstance;
-
-    // If lpCmdLine is not null, handle it properly
-    if (lpCmdLine) |cmdLine| {
-        var cmdLineLen: usize = 0;
-        while (cmdLine[cmdLineLen] != 0) {
-            cmdLineLen += 1;
-        }
-        const cmdLineSlice = cmdLine[0..cmdLineLen];
-        var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
-        defer arena.deinit();
-        var utf8CmdLineBuf = arena.allocator().alloc(u8, cmdLineLen * 4) catch |err| {
-            std.debug.print("Error allocating memory: {s}\n", .{@errorName(err)});
-            return 1;
-        };
-        defer arena.allocator().free(utf8CmdLineBuf);
-        const utf8CmdLineLen = std.unicode.utf16leToUtf8(utf8CmdLineBuf, cmdLineSlice) catch |err| {
-            std.debug.print("Error converting UTF-16 to UTF-8: {s}\n", .{@errorName(err)});
-            return 1;
-        };
-        std.debug.print("Command line: {s}\n", .{utf8CmdLineBuf[0..utf8CmdLineLen]});
-    } else {
-        std.debug.print("No command line arguments\n", .{});
-    }
-
-    // Define a window class This s required by the Windows API, they will use this window class to register the window
-    var window_class: win32.WNDCLASSEXW = .{
-        .style = win32.CS_HREDRAW,
-        .lpfnWndProc = WindowProc,
-        .cbClsExtra = 0,
-        .cbWndExtra = 0,
-        .hInstance = hInstance,
-        .hIcon = null,
-        .hIconSm = null,
-        .hCursor = win32.LoadCursorW(null, win32.IDC_ARROW),
-        .hbrBackground = win32.GetStockObject(win32.WHITE_BRUSH),
-        .cbSize = @sizeOf(win32.WNDCLASSEXW),
-        .lpszMenuName = null,
-        .lpszClassName = L("ZigWindowClass"),
-    };
-
-    // Register the window class, This is required by the Windows API since we are tellign them this class is the class we're using a a window class
-    if (win32.RegisterClassExW(&window_class) == 0) {
-        //TODO Convert error code into i32
-        const error_code = win32.GetLastError();
-        std.log.err("Failed to register window class: {d}", .{error_code});
-        return 1;
-    }
-
-    // Create the window this function creates the window and returns a handle to the window that we can use to operate on the window.
-    const hwnd = win32.CreateWindowExW(
-        win32.WS_EX_OVERLAPPEDWINDOW,
-        window_class.lpszClassName,
-        L("Zig Window"),
-        win32.WS_OVERLAPPEDWINDOW,
-        win32.CW_USEDEFAULT,
-        win32.CW_USEDEFAULT,
-        800,
-        600,
-        null,
-        null,
-        hInstance,
-        null,
-    );
-
-    std.debug.print("hwnd: {any}\n", .{hwnd});
-
-    // Check if the window creation was successful by verifying that hwnd is not null
-    if (hwnd == null) {
-        //TODO Convert error code into i32
-        const error_code = win32.GetLastError();
-        std.log.err("Failed to register window class: {any}", .{error_code});
-        return 2;
-    }
-
-    std.debug.assert(hwnd != null);
-    _ = win32.ShowWindow(hwnd, win32.SW_SHOW);
-    _ = win32.UpdateWindow(hwnd);
-
-    // Run the message loop
-    var msg: win32.MSG = undefined;
-    while (win32.GetMessageW(&msg, null, 0, 0) > 0) {
-        _ = win32.TranslateMessage(&msg);
-        _ = win32.DispatchMessageW(&msg);
-    }
-
-    return 0;
-}
-
-// WindowProc function to handle messages
-fn WindowProc(hwnd: win32.HWND, msg: u32, wparam: usize, lparam: isize) callconv(.C) isize {
-    switch (msg) {
-        win32.WM_DESTROY => {
-            win32.PostQuitMessage(0);
-            return 0;
-        },
-        win32.WM_PAINT => {
-            //We got the message from windows to repaint the window
-            var ps: win32.PAINTSTRUCT = undefined;
-            const hdc = win32.BeginPaint(hwnd, &ps);
-            //In win32, the colors are set as 0xBBGGRR instead of the standard 0xRRGGBB.
-            const colorGreen = color.RGB(147, 204, 18).toCOLOREF();
-            const blueBrush = win32.CreateSolidBrush(colorGreen);
-            //To avoid memory leaks we are deleting the brush when we are done painting
-            defer {
-                _ = win32.DeleteObject(blueBrush);
-            }
-            _ = win32.FillRect(hdc, &ps.rcPaint, blueBrush);
-            //Make sure that the value for c is the lenght of the string, if not, it will look further than necessary in memory, causing unwanted behavior
-            _ = win32.TextOutA(hdc, 20, 20, "Hello", 5);
-            _ = win32.EndPaint(hwnd, &ps);
-            
-            return 0;
-        },
-        else => return win32.DefWindowProcW(hwnd, msg, wparam, lparam), //win32.DefWindowProcW(hwnd, msg, wparam, lparam),
-    }
-}

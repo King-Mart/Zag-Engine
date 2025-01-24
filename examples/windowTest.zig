@@ -1,13 +1,8 @@
-const std = @import("std");
-const Ziglib = @import("Ziglib");
-const config = @import("config");
-pub const UNICODE = config.UNICODE;
+pub const Ziglib = @import("Ziglib");
+pub const std = @import("std");
 
-//What is this?
-// pub fn panic(msg: []const u8, error_return_trace: ?*std.builtin.StackTrace) noreturn {
-//     _ = error_return_trace;
-//     @panic(msg);
-// }
+//It is important to st up the unicode constant before starting
+pub const UNICODE = @import("config").UNICODE;
 
 pub fn wWinMain(hInstance: Ziglib.window.HINSTANCE, hPrevInstance: ?Ziglib.window.HINSTANCE, lpCmdLine: ?[*]u16, nCmdShow: i32) i32 {
     std.debug.print("wWinMain called\n", .{});
@@ -39,15 +34,12 @@ pub fn wWinMain(hInstance: Ziglib.window.HINSTANCE, hPrevInstance: ?Ziglib.windo
     } else {
         std.debug.print("No command line arguments\n", .{});
     }
-    test_window.background_color = Ziglib.graphics.color.RGB(102, 255, 12);
+    test_window.background_color = Ziglib.graphics.color.RGB(233, 123, 12);
     test_window.newWindow(hInstance) catch |err| {
         std.debug.print("Error creating window: {s}\n", .{@errorName(err)});
         return 1;                   
     };
+
+
     return 0;
 }
-// UNIT TESTS HERE
-test "window???" {
-    std.testing.refAllDecls(@This());
-}
-

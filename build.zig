@@ -12,7 +12,6 @@ pub fn build(b: *std.Build) void {
     // set a preferred release mode, allowing the user to decide how to optimize.
     const optimize = b.standardOptimizeOption(.{});
 
-
     // Define the static library (gameEngine) for the main game logic
     const lib = b.addStaticLibrary(.{
         .name = "gameEngine",
@@ -33,28 +32,22 @@ pub fn build(b: *std.Build) void {
     // Define the windowTest executable
     const exe_windowhandle = b.addExecutable(.{
         .name = "windowTest",
-        .root_source_file = b.path("modules/graphics/window.zig"),
+        .root_source_file = b.path("examples/windowTest.zig"),
         .target = target,
         .optimize = optimize,
     });
-    
+
     //add ziglib to the project, this allows the library to be reused as a framework
-    const ziglib_module: *std.Build.Module = b.addModule("Ziglib", .{
-        .root_source_file = b.path("modules/Ziglib.zig")
-    });
+    const ziglib_module: *std.Build.Module = b.addModule("Ziglib", .{ .root_source_file = b.path("modules/Ziglib.zig") });
 
     exe_main.root_module.addImport("Ziglib", ziglib_module);
+    exe_windowhandle.root_module.addImport("Ziglib", ziglib_module);
     const UNICODE = b.option(bool, "UNICODE", "The value of the UNICODE constant") orelse true;
     const options = b.addOptions();
     options.addOption(bool, "UNICODE", UNICODE);
+    exe_windowhandle.root_module.addOptions("config", options);
 
     exe_main.root_module.addOptions("config", options);
-
-
-
-
-
-    
 
     // Link system libraries
 
@@ -84,4 +77,3 @@ pub fn build(b: *std.Build) void {
     const run_gameEngine = b.step("run_gameEngine", "Run the gameEngine executable");
     run_gameEngine.dependOn(&exe_main.step);
 }
-
