@@ -16,6 +16,7 @@ pub const L = win32.L;
 const HWND = win32.HWND;
 
 pub const window = struct {
+    pub var confirm_exit: bool = false;
     pub var width: i16 = 640;
     pub var height: i16 = 480;
     // pub var title: ?[*:0]const u8 = "Hello, world!"; poses problem
@@ -29,6 +30,12 @@ pub const window = struct {
     fn WinProc(wpHWND: win32.HWND, msg: u32, wparam: usize, lparam: isize) callconv(WINAPI) isize {
         std.debug.print("WindowProc called, msg: {d}, wparam: {d}, lparam: {d}\n", .{ msg, wparam, lparam });
         switch (msg) {
+            win32.WM_CLOSE => {
+                if (!confirm_exit or (win32.MessageBoxExW(wpHWND, L("Are you sure you want to exit?"), L("Exit this amazing engine??"), win32.MB_OKCANCEL, 0) == win32.IDOK)) {
+                    _ =win32.DestroyWindow(wpHWND);
+                }
+                return 0;
+            },
             win32.WM_DESTROY => {
                 win32.PostQuitMessage(0);
                 return 0;
