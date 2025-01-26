@@ -1,4 +1,4 @@
-//! NOTE: this file is aan intermediate file, DO NOT MODIFY
+//! NOTE: this file is an intermediate file, DO NOT MODIFY
 pub const core = @import("core.zig");
 pub const file = @import("file/file.zig");
 pub const graphics = @import("graphics/graphics.zig");
