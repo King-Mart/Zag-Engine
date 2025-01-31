@@ -7,6 +7,7 @@ const win32 = struct {
     usingnamespace @import("win32.zig").foundation;
     usingnamespace @import("win32.zig").system.system_services;
     usingnamespace @import("win32.zig").ui.windows_and_messaging;
+    usingnamespace @import("win32.zig").ui.input.keyboard_and_mouse;
     usingnamespace @import("win32.zig").graphics.gdi;
 };
 // Use the local color file for handling colors
@@ -103,9 +104,13 @@ pub fn newWindow(hInstance : win32.HINSTANCE) !void {
 
     //Empty the message loop to handle them later
     var msg: win32.MSG = undefined;
+
     while (win32.GetMessage(&msg, null, 0, 0) != 0) {
         _ = win32.TranslateMessage(&msg);
         _ = win32.DispatchMessage(&msg);
+        if (win32.GetAsyncKeyState(@intFromEnum(win32.VK_3)) & 0x0F != 0) {
+            std.debug.print("Key State: {d}\n", .{win32.GetAsyncKeyState(@intFromEnum(win32.VK_3)) & 0x0f});
+        }
     }
 }
 
