@@ -1,6 +1,7 @@
 pub const UNICODE = true;
 const std = @import("std");
 const WINAPI = std.os.windows.WINAPI;
+const input = @import("input.zig");
 
 const win32 = struct {
     usingnamespace @import("win32.zig").zig;
@@ -37,6 +38,11 @@ fn WinProc(wpHWND: win32.HWND, msg: u32, wparam: usize, lparam: isize) callconv(
             if (!confirm_exit or (win32.MessageBoxExW(wpHWND, L("Are you sure you want to exit?"), L("Exit this amazing engine??"), win32.MB_OKCANCEL, 0) == win32.IDOK)) {
                 _ =win32.DestroyWindow(wpHWND);
             }
+            return 0;
+        },
+        win32.WM_KEYDOWN => {
+            const keyPressed: win32.VIRTUAL_KEY = @enumFromInt(wparam);
+            input.printKey(keyPressed);
             return 0;
         },
         win32.WM_DESTROY => {
