@@ -3,7 +3,7 @@
 
 It was made in zig in order to force me to understand further the concepts I am using to make it.\
 It will heavily be inspired by the Unreal Engine for the 3D part, Unity for 2D and Godot for ease of use and appeal
-
+#### A website will be made to showcase it's capabilities and for a wiki and quicker communication
 # How to build it:
 #### Thanks to Zig's build steps it is quite easy to build it!
 1. Make sure you have Zig 0.13 installed
