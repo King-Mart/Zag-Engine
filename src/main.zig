@@ -9,12 +9,12 @@ pub const UNICODE = config.UNICODE;
 //     @panic(msg);
 // }
 
-pub fn wWinMain(hInstance: Ziglib.window.HINSTANCE, hPrevInstance: ?Ziglib.window.HINSTANCE, lpCmdLine: ?[*]u16, nCmdShow: i32) i32 {
+pub fn wWinMain(hInstance: Ziglib.core.HINSTANCE, hPrevInstance: ?Ziglib.core.HINSTANCE, lpCmdLine: ?[*]u16, nCmdShow: i32) i32 {
     std.debug.print("wWinMain called\n", .{});
     // Mark unused parameters as unused
     _ = nCmdShow;
     _ = hPrevInstance;
-    const test_window = Ziglib.window.window;
+    const test_window = Ziglib.core.window;
     // Having 2 windows doesn't work properly
     // const other_window = Ziglib.window.window;
     // If lpCmdLine is not null, handle it properly
