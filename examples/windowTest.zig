@@ -34,11 +34,20 @@ pub fn wWinMain(hInstance: Ziglib.core.HINSTANCE, hPrevInstance: ?Ziglib.core.HI
     } else {
         std.debug.print("No command line arguments\n", .{});
     }
+    //You can change the backrgound color
     test_window.background_color = Ziglib.graphics.color.RGB(233, 123, 12);
+    //Now you create the window, it won't process its messages on its own
     test_window.newWindow(hInstance) catch |err| {
         std.debug.print("Error creating window: {s}\n", .{@errorName(err)});
         return 1;                   
     };
+    //You have to process them manually
+    var running = true;
+    while (running) {
+        running = test_window.processMessages();
+    }
+
+
 
 
     return 0;

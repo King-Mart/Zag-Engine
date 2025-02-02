@@ -45,6 +45,10 @@ pub fn wWinMain(hInstance: Ziglib.core.HINSTANCE, hPrevInstance: ?Ziglib.core.HI
         std.debug.print("Error creating window: {s}\n", .{@errorName(err)});
         return 1;                   
     };
+    var running = true;
+    while (running) {
+        running = test_window.processMessages();
+    }
     return 0;
 }
 // UNIT TESTS HERE

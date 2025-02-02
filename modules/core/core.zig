@@ -37,7 +37,7 @@ pub const window = struct {
     pub var background_color: color.rgb = color.RGB(1.0, 1.0, 1.0);
 
     fn WinProc(wpHWND: win32.HWND, msg: u32, wparam: usize, lparam: isize) callconv(WINAPI) isize {
-        std.debug.print("WindowProc called, msg: {d}, wparam: {d}, lparam: {d}\n", .{ msg, wparam, lparam });
+        // std.debug.print("WindowProc called, msg: {d}, wparam: {d}, lparam: {d}\n", .{ msg, wparam, lparam });
         switch (msg) {
             win32.WM_CLOSE => {
                 if (!confirm_exit or (win32.MessageBoxExW(wpHWND, L("Are you sure you want to exit?"), L("Exit this amazing engine??"), win32.MB_OKCANCEL, 0) == win32.IDOK)) {
@@ -111,17 +111,37 @@ pub const window = struct {
 
         _ = win32.ShowWindow(hwnd, win32.SW_SHOW);
         _ = win32.UpdateWindow(hwnd);
+    }
 
+    //---
+    //- The process message function processes every message in the queue and then returns false if a quit message was given, true otherwise
+    //---
+    pub fn processMessages() bool {
         //Empty the message loop to handle them later
         var msg: win32.MSG = undefined;
-        //peekmessage is essential for the game loop but for a simple window, it creates the problem of being too fast and closign due to lack of received messages
-        while (win32.GetMessage(&msg, hwnd, 0, 0, win32.PM_REMOVE) != 0) {
+
+        //here we peek at the message, if it tells us to quit then we send the info to the winproc and to the game window
+        while (win32.PeekMessage(&msg, null, 0, 0, win32.PM_REMOVE) != 0) {
+            if (msg.message == win32.WM_QUIT) {
+                std.debug.print("WEEEEREE QUITTTING !!!! The message is {d} and the quit value is {d}\n", .{ msg.message, win32.WM_QUIT });
+                return false;
+            }
+            //Translate char and input messages and add them to the queue
             _ = win32.TranslateMessage(&msg);
+            //Either send the message to WinProc or in the case of a WM_TIMER message, we might have a fucntion to execute in the lparam
             _ = win32.DispatchMessage(&msg);
         }
+        return true;
     }
 };
 
 //This will be the engine that runs the game loop
 
-const engine = struct {};
+const engine = struct {
+    pub fn run(targetWindow: *window) !void {
+        var running = true;
+        while (running) {
+            running = targetWindow.processMessages();
+        }
+    }
+};
