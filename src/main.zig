@@ -14,7 +14,14 @@ pub fn wWinMain(hInstance: Ziglib.core.HINSTANCE, hPrevInstance: ?Ziglib.core.HI
     // Mark unused parameters as unused
     _ = nCmdShow;
     _ = hPrevInstance;
-    const test_window = Ziglib.core.window;
+    var test_window: Ziglib.core.Window = .{
+        .instance = hInstance,
+        .confirm_exit = true,
+        .WinProc = Ziglib.core.WinProc,
+        .processMessages = Ziglib.core.processMessages,
+        .newWindow = Ziglib.core.newWindow,
+    };
+    test_window.background_color = Ziglib.graphics.color.RGB(102, 255, 12);
     // Having 2 windows doesn't work properly
     // const other_window = Ziglib.window.window;
     // If lpCmdLine is not null, handle it properly
@@ -39,20 +46,15 @@ pub fn wWinMain(hInstance: Ziglib.core.HINSTANCE, hPrevInstance: ?Ziglib.core.HI
     } else {
         std.debug.print("No command line arguments\n", .{});
     }
-    test_window.background_color = Ziglib.graphics.color.RGB(102, 255, 12);
-    test_window.confirm_exit = true;
-    test_window.newWindow(hInstance) catch |err| {
+    Ziglib.core.newWindow(&test_window, hInstance) catch |err| {
         std.debug.print("Error creating window: {s}\n", .{@errorName(err)});
-        return 1;                   
+        return 1;
     };
-    var running = true;
-    while (running) {
-        running = test_window.processMessages();
-    }
+    const engine = Ziglib.core.engine;
+    try engine.run(&test_window);
     return 0;
 }
 // UNIT TESTS HERE
 test "window???" {
     std.testing.refAllDecls(@This());
 }
-

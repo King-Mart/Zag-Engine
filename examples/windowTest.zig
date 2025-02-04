@@ -1,5 +1,6 @@
 pub const Ziglib = @import("Ziglib");
 pub const std = @import("std");
+pub const L = Ziglib.core.L;
 
 //It is important to st up the unicode constant before starting
 pub const UNICODE = @import("config").UNICODE;
@@ -9,7 +10,18 @@ pub fn wWinMain(hInstance: Ziglib.core.HINSTANCE, hPrevInstance: ?Ziglib.core.HI
     // Mark unused parameters as unused
     _ = nCmdShow;
     _ = hPrevInstance;
-    const test_window = Ziglib.core.window;
+    var test_window: Ziglib.core.Window = .{ 
+        .background_color = Ziglib.graphics.color.RGB(34, 146, 210),
+        .class_name = L("The real test baby"),
+        .confirm_exit = false,
+        .height = 1080,
+        .width = 1800,
+        .instance = hInstance,
+        .WinProc = Ziglib.core.WinProc,
+        .processMessages = Ziglib.core.processMessages,
+        .newWindow = Ziglib.core.newWindow,
+        };
+    test_window.background_color = Ziglib.graphics.color.RGB(102, 255, 12);
     // Having 2 windows doesn't work properly
     // const other_window = Ziglib.window.window;
     // If lpCmdLine is not null, handle it properly
@@ -35,17 +47,14 @@ pub fn wWinMain(hInstance: Ziglib.core.HINSTANCE, hPrevInstance: ?Ziglib.core.HI
         std.debug.print("No command line arguments\n", .{});
     }
     //You can change the backrgound color
-    test_window.background_color = Ziglib.graphics.color.RGB(233, 123, 12);
     //Now you create the window, it won't process its messages on its own
-    test_window.newWindow(hInstance) catch |err| {
+    Ziglib.core.newWindow(&test_window, hInstance) catch |err| {
         std.debug.print("Error creating window: {s}\n", .{@errorName(err)});
         return 1;                   
     };
     //You have to process them manually
-    var running = true;
-    while (running) {
-        running = test_window.processMessages();
-    }
+    const engine = Ziglib.core.engine;
+    try engine.run(&test_window);
 
 
 
