@@ -133,7 +133,7 @@ pub const Window: type = struct {
     background_color: color.rgb = color.RGB(255, 255, 255),
     WinProc: *const fn(wpHWND: win32.HWND, msg: u32, wparam: usize, lparam: isize) callconv(WINAPI) isize,
     //value pasted from an error log
-    newWindow: *const fn (*Window, win32.HINSTANCE) @typeInfo(@typeInfo(@TypeOf(newWindow)).Fn.return_type.?).ErrorUnion.error_set!void,
+    newWindow: *const fn (self: *Window, win32.HINSTANCE) @typeInfo(@typeInfo(@TypeOf(newWindow)).Fn.return_type.?).ErrorUnion.error_set!void,
     processMessages: *const fn() bool,
     // WinProc,
     // newWindow,

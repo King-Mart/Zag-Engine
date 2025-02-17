@@ -1,0 +1,8 @@
+[package]
+name = "ZigZagEngine"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bindings = { path = "bindings" }
+zaglib = { path = "zaglib" }
