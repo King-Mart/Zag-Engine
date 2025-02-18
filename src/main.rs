@@ -31,7 +31,7 @@ fn main() {
     
     let _wc = WindowsAndMessaging::WNDCLASSEXW {
         style: WindowsAndMessaging::CS_CLASSDC,
-        //I need to understand this Rust lyrical magical
+        //I need to understand this Rust lyrical miracle
         lpfnWndProc: Some(wnd_proc),
         cbClsExtra: 0,
         cbSize: std::mem::size_of::<WindowsAndMessaging::WNDCLASSEXW>() as u32,
