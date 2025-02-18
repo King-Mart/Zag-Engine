@@ -14,7 +14,8 @@ fn to_wide_string(value: &str) -> Vec<u16> {
     std::ffi::OsStr::new(value).encode_wide().chain(std::iter::once(0)).collect()
 }
 fn to_pcwstr(value: &str) -> PCWSTR {
-    return PCWSTR(to_wide_string(value).as_ptr())
+    let tmp = to_wide_string(value);
+    return PCWSTR(tmp.as_ptr())
 }
 extern "system" fn wnd_proc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: LPARAM) -> LRESULT {
     match msg {
