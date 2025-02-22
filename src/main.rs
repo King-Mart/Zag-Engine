@@ -1,6 +1,6 @@
 
 use bindings::windows::core::PCWSTR;
-use bindings::windows::Win32::Graphics::Gdi::{BeginPaint, CreateSolidBrush, EndPaint, FillRect, GetSysColor, GetSysColorBrush, PAINTSTRUCT};
+use bindings::windows::Win32::Graphics::Gdi::{BeginPaint, CreateSolidBrush, DeleteObject, EndPaint, FillRect, GetSysColor, GetSysColorBrush, PAINTSTRUCT};
 //use bindings::windows::Win32::Foundation;
 use bindings::windows::Win32::UI::WindowsAndMessaging::*;
 // use bindings::windows::Win32::UI::Input::KeyboardAndMouse;
@@ -43,10 +43,13 @@ extern "system" fn wnd_proc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: LPARAM
             eprintln!("WM_PAINT");
             let mut ps = PAINTSTRUCT::default();
             let hdc;
+            let red_brush;
              unsafe {
                 hdc  = BeginPaint(hwnd, &mut ps);
-                _ = FillRect(hdc, &ps.rcPaint, CreateSolidBrush(COLORREF(0x0000FF_u32)));
+                red_brush = CreateSolidBrush(COLORREF(0x0000FF_u32));
+                _ = FillRect(hdc, &ps.rcPaint, red_brush);
                 _ = EndPaint(hwnd, &ps);
+                _ = DeleteObject(red_brush.into());
             };
 
             return  LRESULT(0);
