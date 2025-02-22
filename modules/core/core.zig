@@ -93,7 +93,7 @@ pub fn WinProc(wpHWND: win32.HWND, msg: u32, wparam: usize, lparam: isize) callc
                 //No ideea how to add confirmation after tonight's refactoring
                 // if (!confirm_exit or (win32.MessageBoxExW(wpHWND, L("Are you sure you want to exit?"), L("Exit this amazing engine??"), win32.MB_OKCANCEL, 0) == win32.IDOK)) {
                 //     _ = win32.DestroyWindow(wpHWND);
-                // }
+                // } 
                 // return 0;
                 _ = win32.DestroyWindow(wpHWND);
                 return 0;

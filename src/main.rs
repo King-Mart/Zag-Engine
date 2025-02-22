@@ -1,13 +1,15 @@
 
 use bindings::windows::core::PCWSTR;
+use bindings::windows::Win32::Graphics::Gdi::{BeginPaint, CreateSolidBrush, EndPaint, FillRect, GetSysColor, GetSysColorBrush, PAINTSTRUCT};
 //use bindings::windows::Win32::Foundation;
 use bindings::windows::Win32::UI::WindowsAndMessaging::*;
 // use bindings::windows::Win32::UI::Input::KeyboardAndMouse;
 
 use bindings::windows::Win32::Foundation::{
-    HINSTANCE, HWND, LPARAM, LRESULT, WPARAM
+    COLORREF, HINSTANCE, HWND, LPARAM, LRESULT, WPARAM
 };
 use std::os::windows::ffi::OsStrExt;
+use bindings::windows::System::VirtualKey;
 
 //PLACEHOLDER< TODO: UNDERSTAND and MODIFY this
 fn to_wide_string(value: &str) -> Vec<u16> {
@@ -25,15 +27,44 @@ fn to_pcwstr(value: &str) -> PCWSTR {
 }
 extern "system" fn wnd_proc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: LPARAM) -> LRESULT {
     match msg {
+        WM_KEYDOWN => {
+            let key_pressed = VirtualKey(wparam.0 as i32);
+            eprintln!("{:?} Key pressed", key_pressed);
+            if key_pressed.0 == 78 {
+                unsafe {
+                let box_title = to_wide_string("Key pressed");
+                let box_message = to_wide_string("N key was pressed");
+                _ = MessageBoxW(Some(hwnd), PCWSTR(box_message.as_ptr()), PCWSTR(box_title.as_ptr()), MB_OKCANCEL)
+                }
+            }
+            return LRESULT(0);
+        }
+        WM_PAINT => {
+            eprintln!("WM_PAINT");
+            let mut ps = PAINTSTRUCT::default();
+            let hdc;
+             unsafe {
+                hdc  = BeginPaint(hwnd, &mut ps);
+                _ = FillRect(hdc, &ps.rcPaint, CreateSolidBrush(COLORREF(0x0000FF_u32)));
+                _ = EndPaint(hwnd, &ps);
+            };
+
+            return  LRESULT(0);
+        }
         WM_CLOSE => {
+            eprintln!("WM_CLOSE");
             _ = unsafe { DestroyWindow(hwnd) };
             return LRESULT(0);
         }
         WM_DESTROY => {
+            eprintln!("WM_DESTROY");
             unsafe { PostQuitMessage(0) };
             return LRESULT(0);
         }
-        _ => unsafe { DefWindowProcW(hwnd, msg, wparam, lparam) }
+        _ => {
+            eprintln!("Unknown message: 0x{:x}", msg);
+            unsafe { DefWindowProcW(hwnd, msg, wparam, lparam) }
+        }
     }
 }
 
