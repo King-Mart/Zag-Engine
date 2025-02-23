@@ -9,6 +9,7 @@ use bindings::windows::Win32::Foundation::{
     COLORREF, HINSTANCE, HWND, LPARAM, LRESULT, WPARAM
 };
 use std::os::windows::ffi::OsStrExt;
+use zaglib::window;
 use bindings::windows::System::VirtualKey;
 
 //PLACEHOLDER< TODO: UNDERSTAND and MODIFY this
