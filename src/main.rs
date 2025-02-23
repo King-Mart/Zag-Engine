@@ -14,7 +14,6 @@ use bindings::
                     WindowsAndMessaging::*,
                     Input::KeyboardAndMouse,
                 },
-
             },
             System::VirtualKey,
 
@@ -31,16 +30,16 @@ use zaglib::window;
 fn to_wide_string(value: &str) -> Vec<u16> {
     std::ffi::OsStr::new(value).encode_wide().chain(std::iter::once(0)).collect()
 }
-fn to_pcwstr(value: &str) -> PCWSTR {
-    static mut BUFFER: Vec<u16> = Vec::new();
-    //TODO: Invetigate why Rust considers this dangerous behavior
-    unsafe {
-        BUFFER = to_wide_string(value);
-        PCWSTR(BUFFER.as_ptr())
-    }
 
-
-}
+//WARNING: this function should not be used I am only keeping it to investigate why it allows to inject a different string than the one entered. It will be removed thereafter.
+// fn to_pcwstr(value: &str) -> PCWSTR {
+//     static mut BUFFER: Vec<u16> = Vec::new();
+//     //TODO: Invetigate why Rust considers this dangerous behavior
+//     unsafe {
+//         BUFFER = to_wide_string(value);
+//         PCWSTR(BUFFER.as_ptr())
+//     }
+// }
 extern "system" fn wnd_proc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: LPARAM) -> LRESULT {
     match msg {
         WM_KEYDOWN => {
@@ -99,7 +98,7 @@ fn main() {
     };
     
 
-    let class_name = to_pcwstr("sample_class");
+    let class_name = to_wide_string("sample_class");
 
     
     let wc = WNDCLASSEXW {
@@ -116,21 +115,21 @@ fn main() {
         hCursor: Default::default(),
         hbrBackground: Default::default(),
         lpszMenuName: PCWSTR::null(),
-        lpszClassName: class_name,
+        lpszClassName: PCWSTR(class_name.as_ptr()),
     };
      if unsafe { 
             RegisterClassExW(&wc) == 0
         } {
             eprintln!("Failed to register the window class (init2")
         }
-
+    let title = to_wide_string("Rust Window");
     let hwnd = 
         match          
             unsafe {
                     CreateWindowExW(
                     WS_EX_OVERLAPPEDWINDOW,
-                    class_name,
-                    to_pcwstr("Test"),
+                    PCWSTR(class_name.as_ptr()),
+                    PCWSTR(title.as_ptr()),
                     WS_OVERLAPPEDWINDOW,
                     CW_USEDEFAULT,
                     CW_USEDEFAULT,
