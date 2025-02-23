@@ -117,11 +117,9 @@ fn main() {
         lpszMenuName: PCWSTR::null(),
         lpszClassName: PCWSTR(class_name.as_ptr()),
     };
-     if unsafe { 
-            RegisterClassExW(&wc) == 0
-        } {
-            eprintln!("Failed to register the window class (init2")
-        }
+     if unsafe { RegisterClassExW(&wc) } == 0 {
+         panic!("Failed to register the window class (init2)");
+     }
     let title = to_wide_string("Rust Window");
     let hwnd = 
         match          
