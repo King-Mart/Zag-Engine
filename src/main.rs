@@ -1,16 +1,31 @@
 
-use bindings::windows::core::PCWSTR;
-use bindings::windows::Win32::Graphics::Gdi::{BeginPaint, CreateSolidBrush, DeleteObject, EndPaint, FillRect, GetSysColor, GetSysColorBrush, PAINTSTRUCT};
-//use bindings::windows::Win32::Foundation;
-use bindings::windows::Win32::UI::WindowsAndMessaging::*;
-// use bindings::windows::Win32::UI::Input::KeyboardAndMouse;
+use bindings::
+        windows::{
+            core::PCWSTR,
+            Win32::{
+                Foundation::{
+                    COLORREF, HINSTANCE, HWND, LPARAM, LRESULT, WPARAM
+                },
+                Graphics::
+                    Gdi::{
+                    BeginPaint, CreateSolidBrush, DeleteObject, EndPaint, FillRect, GetSysColor, GetSysColorBrush, PAINTSTRUCT
+                },
+                UI::{
+                    WindowsAndMessaging::*,
+                    Input::KeyboardAndMouse,
+                },
 
-use bindings::windows::Win32::Foundation::{
-    COLORREF, HINSTANCE, HWND, LPARAM, LRESULT, WPARAM
-};
+            },
+            System::VirtualKey,
+
+        };
+
+
+
+
 use std::os::windows::ffi::OsStrExt;
 use zaglib::window;
-use bindings::windows::System::VirtualKey;
+
 
 //PLACEHOLDER< TODO: UNDERSTAND and MODIFY this
 fn to_wide_string(value: &str) -> Vec<u16> {
